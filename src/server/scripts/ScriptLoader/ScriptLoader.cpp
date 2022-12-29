@@ -1154,7 +1154,7 @@ void AddWorldScripts()
     AddSC_brawlers_guild();
     AddSC_chat_log();
     AddSC_on_duel();
-	AddSC_transmog();
+    AddSC_transmog();
     AddSC_world_map_scripts();
 #endif
 }
@@ -2133,23 +2133,22 @@ void AddBattlegroundScripts()
 
 #endif
 void AddSC_npc_teleport();
-void AddSC_protected_zone();
 void AddSC_wow_token();
 void AddSC_custom_reward();
-void AddSC_Boost_Profession();
-void AddSC_Custom_Items();
-
+void AddSC_boost_profession();
+void AddSC_custom_items();
+void AddSC_solocraft_system();
 
 void AddCustomScripts()
 {
 #ifdef SCRIPTS
     /* This is where custom scripts should be added. */
 AddSC_npc_teleport();
-AddSC_protected_zone();
 AddSC_wow_token();
 AddSC_custom_reward();
-AddSC_Boost_Profession();
-AddSC_Custom_Items();
+AddSC_boost_profession();
+AddSC_custom_items();
+AddSC_solocraft_system();
 
 #endif
     AddSC_Anticheat();

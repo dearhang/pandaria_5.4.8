@@ -23,10 +23,10 @@
 #include "Opcodes.h"
 #include "WorldSession.h"
 
-#define MAX_BATTLE_PAY_PRODUCT_TITLE_SIZE       50
+#define MAX_BATTLE_PAY_PRODUCT_TITLE_SIZE 55
 #define MAX_BATTLE_PAY_PRODUCT_DESCRIPTION_SIZE 500
-#define MAX_BATTLE_PAY_GROUP_NAME_SIZE          16
-#define BATTLE_PAY_CURRENCY_PRECISION           10000
+#define MAX_BATTLE_PAY_GROUP_NAME_SIZE 16
+#define BATTLE_PAY_CURRENCY_PRECISION 10000
 
 enum BattlePayCurrency
 {
@@ -284,7 +284,7 @@ class BattlePayMgr
         BattlePayMgr();
         ~BattlePayMgr();
 
-		void SendPointsBalance(WorldSession* session);
+        void SendPointsBalance(WorldSession* session);
         void UpdatePointsBalance(WorldSession* session, uint64 points);
         bool HasPointsBalance(WorldSession* session, uint64 points);
         void Update(uint32 diff);

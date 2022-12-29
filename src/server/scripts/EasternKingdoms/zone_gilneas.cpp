@@ -17,7 +17,10 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "ScriptedEscortAI.h"
 #include "PassiveAI.h"
+#include "Vehicle.h"
+#include "TaskScheduler.h"
 
 enum Gilneas
 {
@@ -86,7 +89,99 @@ enum Gilneas
     SAY_JOSIAH_AVERY_3                      = 2,
     SAY_JOSIAH_AVERY_4                      = 3,
     SAY_JOSIAH_AVERY_5                      = 4,
-    SAY_JOSIAH_AVERY_6                      = 5
+    SAY_JOSIAH_AVERY_6                      = 5,
+
+    QUEST_FROM_THE_SHADOWS                  = 14204,
+
+    NPC_GILNEAS_MASTIFF                     = 35631,
+    NPC_BLOODFANG_LURKER                    = 35463,
+
+    SPELL_SUMMON_MASTIFF                    = 67807,
+    SPELL_ATTACK_LURKER                     = 67805,
+    SPELL_SHADOWSTALKER_STEALTH             = 5916,
+    SPELL_UNDYING_FRENZY                    = 80515,
+    SPELL_ENRAGE                            = 8599,
+
+    WORGEN_ENRAGE_EMOTE                     = 0,
+
+    QUEST_SAVE_KRENNAN_ARANAS               = 14293,
+
+    NPC_KRENNAN_ARANAS                      = 35753,
+    NPC_KING_GREYMANES_HORSE                = 35905,
+    NPC_BLOODFANG_RIPPER                    = 35505,
+    NPC_GILNEAS_CITY_GUARD                  = 35509,
+    NPC_KRENNAN_ARANAS_KILL_CREDIT          = 35753,
+
+    TEXT_KRENNAN_ARANAS                     = 0,
+    EMOTE_SAVE_KRENNAN_ARANAS               = 0,
+    TEXT_SAVED_KRENNAN_ARANAS               = 0,
+
+    SPELL_GUARD_SHOOT                       = 48424,
+
+    SPELL_SAVE_CYNTHIA                      = 68597,
+    SPELL_SAVE_ASHLEY                       = 68598,
+    SPELL_SAVE_JAMES                        = 68596,
+
+    PLAYER_SAY_CYNTHIA                      = 0,
+    PLAYER_SAY_ASHLEY                       = 1,
+    PLAYER_SAY_JAMES                        = 2,
+
+    NPC_JAMES                               = 36289,
+    NPC_CYNTHIA                             = 36287,
+    NPC_ASHLEY                              = 36288,
+
+    EVENT_TALK_TO_PLAYER                    = 1,
+    EVENT_START_RUN                         = 2,
+    EVENT_OPEN_DOOR                         = 3,
+    EVENT_RESUME_RUN                        = 4,
+    EVENT_CRY                               = 5,
+
+    CHILDREN_TEXT_ID                        = 0,
+
+    GO_DOOR_TO_THE_BASEMENT                 = 196411,
+
+    SPELL_CATCH_CAT                         = 68743,
+    SPELL_LUCIUS_SHOOT                      = 41440,
+
+    NPC_WAHL                                = 36458,
+    NPC_WAHL_WORGEN                         = 36852,
+    NPC_LUCIUS_THE_CRUEL                    = 36461,
+
+    SAY_THIS_CAT_IS_MINE                    = 0,
+    YELL_DONT_MESS                          = 0,
+
+    ACTION_SUMMON_LUCIUS                    = 1,
+    ACTION_CHANCE_DESPAWN                   = 2,
+    ACTION_CONTINUE_SCENE                   = 3,
+
+    POINT_CATCH_CHANCE                      = 4,
+
+    SPELL_ROUND_UP_HORSE                    = 68908,
+    SPELL_ROPE_CHANNEL                      = 68940,
+
+    EVENT_CHECK_LORNA                       = 1,
+    EVENT_CHECK_OWNER                       = 2,
+
+    NPC_LORNA_CROWLEY_2                     = 36457,
+
+    QUEST_THE_HUNGRY_ETTIN                  = 14416,
+
+    QUEST_CREDIT_HORSE                      = 36560,
+
+    MUSIC_ENTRY_TELESCOPE                   = 23539,
+    PLAY_CINEMATIC_TELESCOPE                = 167,
+
+    QUEST_ENTRY_EXODUS                      = 24438,
+
+    NPC_STAGECOACH_HARNESS                  = 38755,
+    NPC_HARNESS_SUMMONED                    = 43336,
+
+    EVENT_BOARD_HARNESS_OWNER               = 1,
+
+    ACTION_START_WP                         = 1,
+
+    GO_FIRST_GATE                           = 196401,
+    GO_KINGS_GATE                           = 196412
 };
 
 Position const runt2SummonJumpPos = { -1671.915f, 1446.734f, 52.28712f };
@@ -361,6 +456,69 @@ Position const WorgenRuntHousePos[] =
     { -1622.665f, 1489.818f, 71.03797f, 3.776179f },
 };
 
+uint8 const JamesPathLenght = 6;
+Position const JamesPath[][JamesPathLenght] =
+{
+    {
+        { -1925.925049f, 2539.176514f, 1.392833f, 0.0f },
+        { -1913.658203f, 2545.986328f, 1.465530f, 0.0f },
+        { -1904.370728f, 2552.793213f, 1.132485f, 0.0f },
+        { -1900.970459f, 2550.849365f, 0.714445f, 0.0f },
+        { -1886.868774f, 2540.282471f, 1.706371f, 0.0f },
+        { -1882.739746f, 2543.941865f, 1.628683f, 0.0f },
+    },
+};
+
+uint8 const CynthiaPathLenght = 6;
+Position const CynthiaPath[][CynthiaPathLenght] =
+{
+    {
+        { -1947.965088f, 2518.669434f, 1.826697f, 0.0f },
+        { -1923.350830f, 2521.841553f, 1.586985f, 0.0f },
+        { -1917.197632f, 2520.494385f, 2.297501f, 0.0f },
+        { -1890.082031f, 2519.952148f, 1.425827f, 0.0f },
+        { -1886.868774f, 2540.282471f, 1.706371f, 0.0f },
+        { -1882.739746f, 2543.941865f, 1.628683f, 0.0f },
+    },
+};
+
+uint8 const AshleyPathLenght = 13;
+Position const AshleyPath[][AshleyPathLenght] =
+{
+    {
+        { -1928.023682f, 2558.467285f, 12.733648f, 0.0f },
+        { -1928.248901f, 2553.930176f, 12.734390f, 0.0f },
+        { -1923.981567f, 2552.113770f, 12.736046f, 0.0f },
+        { -1919.301514f, 2563.295166f, 3.579522f, 0.0f },
+        { -1930.442017f, 2562.145996f, 3.579824f, 0.0f },
+        { -1941.160156f, 2566.118896f, 1.392157f, 0.0f },
+        { -1940.852295f, 2543.049072f, 1.392157f, 0.0f },
+        { -1919.504517f, 2543.273926f, 1.392157f, 0.0f },
+        { -1913.658203f, 2545.986328f, 1.465530f, 0.0f },
+        { -1904.370728f, 2552.793213f, 1.132485f, 0.0f },
+        { -1900.970459f, 2550.849365f, 0.714445f, 0.0f },
+        { -1886.868774f, 2540.282471f, 1.706371f, 0.0f },
+        { -1882.739746f, 2543.941865f, 1.628683f, 0.0f },
+    },
+};
+
+uint8 const childrenBasementPathLenght = 3;
+Position const childrenBasementPath[][childrenBasementPathLenght] =
+{
+    {
+        { -1879.062378f, 2546.958984f, -0.130342f, 0.0f },
+        { -1873.854980f, 2550.903564f, -5.898719f, 0.0f },
+        { -1868.589844f, 2536.521240f, -6.365717f, 0.0f },
+    },
+};
+
+const std::string PlayerText[3] =
+{
+    "It's not safe here. Go to the Allens' basement.",
+    "Join the others inside the basement next door. Hurry!",
+    "Your mother's in the basement next door. Get to her now!",
+};
+
 struct npc_gilneas_crow : public ScriptedAI
 {
     npc_gilneas_crow(Creature* creature) : ScriptedAI(creature) { }
@@ -421,7 +579,7 @@ struct npc_gilneas_city_guard_gate : public ScriptedAI
     void Reset() override
     {
         if (me->GetDistance2d(-1430.47f, 1345.55f) < 10.0f)
-            m_events.ScheduleEvent(EVENT_START_TALK_WITH_CITIZEN, 10 * IN_MILLISECONDS, 30 * IN_MILLISECONDS);
+            m_events.ScheduleEvent(EVENT_START_TALK_WITH_CITIZEN, randtime(10s, 30s));
     }
 
     void UpdateAI(uint32 diff) override
@@ -441,7 +599,7 @@ struct npc_gilneas_city_guard_gate : public ScriptedAI
                     if (Creature* npc = ObjectAccessor::GetCreature(*me, m_citizenGUID))
                         npc->HandleEmoteCommand(m_emote);
 
-                    m_events.ScheduleEvent(EVENT_TALK_WITH_CITIZEN_1, 2 * IN_MILLISECONDS + 200, 3 * IN_MILLISECONDS);
+                    m_events.ScheduleEvent(EVENT_TALK_WITH_CITIZEN_1, randtime(2s + 200ms, 3s));
                     break;
                 }
                 case EVENT_TALK_WITH_CITIZEN_1:
@@ -449,13 +607,13 @@ struct npc_gilneas_city_guard_gate : public ScriptedAI
                     if (Creature* npc = ObjectAccessor::GetCreature(*me, m_citizenGUID))
                         npc->AI()->Talk(m_say);
 
-                    m_events.ScheduleEvent(EVENT_TALK_WITH_CITIZEN_2, 5 * IN_MILLISECONDS);
+                    m_events.ScheduleEvent(EVENT_TALK_WITH_CITIZEN_2, 5s);
                     break;
                 }
                 case EVENT_TALK_WITH_CITIZEN_2:
                 {
                     Talk(m_say);
-                    m_events.ScheduleEvent(EVENT_TALK_WITH_CITIZEN_3, 5 * IN_MILLISECONDS);
+                    m_events.ScheduleEvent(EVENT_TALK_WITH_CITIZEN_3, 5s);
                     break;
                 }
                 case EVENT_TALK_WITH_CITIZEN_3:
@@ -463,7 +621,7 @@ struct npc_gilneas_city_guard_gate : public ScriptedAI
                     if (Creature* npc = ObjectAccessor::GetCreature(*me, m_citizenGUID))
                         npc->HandleEmoteCommand(EMOTE_STATE_NONE);
 
-                    m_events.ScheduleEvent(EVENT_START_TALK_WITH_CITIZEN, 5 * IN_MILLISECONDS, 30 * IN_MILLISECONDS);
+                    m_events.ScheduleEvent(EVENT_START_TALK_WITH_CITIZEN, randtime(5s, 30s));
                     break;
                 }
             }
@@ -508,7 +666,7 @@ struct npc_prince_liam_greymane : public ScriptedAI
 
     void Reset() override
     {
-        _events.RescheduleEvent(EVENT_START_DIALOG, 1 * IN_MILLISECONDS);
+        _events.RescheduleEvent(EVENT_START_DIALOG, 1s);
     }
 
     void UpdateAI(uint32 diff) override
@@ -521,20 +679,20 @@ struct npc_prince_liam_greymane : public ScriptedAI
             {
                 case EVENT_START_DIALOG:
                 {
-                    _events.ScheduleEvent(EVENT_RESET_DIALOG, 2 * MINUTE * IN_MILLISECONDS);
-                    _events.ScheduleEvent(EVENT_START_TALK_TO_GUARD, 1 * IN_MILLISECONDS);
+                    _events.ScheduleEvent(EVENT_RESET_DIALOG, 2min);
+                    _events.ScheduleEvent(EVENT_START_TALK_TO_GUARD, 1s);
                     break;
                 }
                 case EVENT_START_TALK_TO_GUARD:
                 {
                     Talk(PRINCE_LIAM_GREYMANE_TEXT_00);
-                    _events.ScheduleEvent(EVENT_TALK_TO_GUARD_1, 15 * IN_MILLISECONDS);
+                    _events.ScheduleEvent(EVENT_TALK_TO_GUARD_1, 15s);
                     break;
                 }
                 case EVENT_TALK_TO_GUARD_1:
                 {
                     Talk(PRINCE_LIAM_GREYMANE_TEXT_01);
-                    _events.ScheduleEvent(EVENT_TALK_TO_GUARD_2, 18 * IN_MILLISECONDS);
+                    _events.ScheduleEvent(EVENT_TALK_TO_GUARD_2, 18s);
                     break;
                 }
                 case EVENT_TALK_TO_GUARD_2:
@@ -581,7 +739,7 @@ struct npc_worgen_runt : public ScriptedAI
     {
         me->setActive(true);
         _events.SetPhase(PHASE_ROOF);
-        _events.ScheduleEvent(EVENT_FORCE_DESPAWN, 70 * IN_MILLISECONDS, 0, PHASE_ROOF);
+        _events.ScheduleEvent(EVENT_FORCE_DESPAWN, 1min + 10s, 0, PHASE_ROOF);
         _playerGuid = summoner->GetGUID();
 
         if (me->GetEntry() == NPC_WORGEN_RUNT_2)
@@ -641,31 +799,31 @@ struct npc_worgen_runt : public ScriptedAI
                 break;
             case WORGEN_ID_CATHEDRAL_2:
                 _wayPointCounter = runtCathedralPathSize2;
-                me->GetMotionMaster()->MoveSmoothPath(runtCathedralPathSize2, worgenRuntCathedralPath1, runtCathedralPathSize2);
+                me->GetMotionMaster()->MoveSmoothPath(runtCathedralPathSize2, worgenRuntCathedralPath2, runtCathedralPathSize2);
                 break;
             case WORGEN_ID_CATHEDRAL_3:
                 _wayPointCounter = runtCathedralPathSize3;
-                me->GetMotionMaster()->MoveSmoothPath(runtCathedralPathSize3, worgenRuntCathedralPath1, runtCathedralPathSize3);
+                me->GetMotionMaster()->MoveSmoothPath(runtCathedralPathSize3, worgenRuntCathedralPath3, runtCathedralPathSize3);
                 break;
             case WORGEN_ID_CATHEDRAL_4:
                 _wayPointCounter = runtCathedralPathSize4;
-                me->GetMotionMaster()->MoveSmoothPath(runtCathedralPathSize4, worgenRuntCathedralPath1, runtCathedralPathSize4);
+                me->GetMotionMaster()->MoveSmoothPath(runtCathedralPathSize4, worgenRuntCathedralPath4, runtCathedralPathSize4);
                 break;
             case WORGEN_ID_CATHEDRAL_5:
                 _wayPointCounter = runtCathedralPathSize5;
-                me->GetMotionMaster()->MoveSmoothPath(runtCathedralPathSize5, worgenRuntCathedralPath1, runtCathedralPathSize5);
+                me->GetMotionMaster()->MoveSmoothPath(runtCathedralPathSize5, worgenRuntCathedralPath5, runtCathedralPathSize5);
                 break;
             case WORGEN_ID_CATHEDRAL_6:
                 _wayPointCounter = runtCathedralPathSize6;
-                me->GetMotionMaster()->MoveSmoothPath(runtCathedralPathSize6, worgenRuntCathedralPath1, runtCathedralPathSize6);
+                me->GetMotionMaster()->MoveSmoothPath(runtCathedralPathSize6, worgenRuntCathedralPath6, runtCathedralPathSize6);
                 break;
             case WORGEN_ID_CATHEDRAL_7:
                 _wayPointCounter = runtCathedralPathSize7;
-                me->GetMotionMaster()->MoveSmoothPath(runtCathedralPathSize7, worgenRuntCathedralPath1, runtCathedralPathSize7);
+                me->GetMotionMaster()->MoveSmoothPath(runtCathedralPathSize7, worgenRuntCathedralPath7, runtCathedralPathSize7);
                 break;
             case WORGEN_ID_CATHEDRAL_8:
                 _wayPointCounter = runtCathedralPathSize8;
-                me->GetMotionMaster()->MoveSmoothPath(runtCathedralPathSize8, worgenRuntCathedralPath1, runtCathedralPathSize8);
+                me->GetMotionMaster()->MoveSmoothPath(runtCathedralPathSize8, worgenRuntCathedralPath8, runtCathedralPathSize8);
                 break;
         }
     }
@@ -680,7 +838,7 @@ struct npc_worgen_runt : public ScriptedAI
         if (type == EFFECT_MOTION_TYPE && pointId == _wayPointCounter && !_jumped)
         {
             _jumped = true;
-            _events.ScheduleEvent(EVENT_JUMP_TO_PRISON, 1 * IN_MILLISECONDS);
+            _events.ScheduleEvent(EVENT_JUMP_TO_PRISON, 1s);
         }
     }
 
@@ -701,7 +859,7 @@ struct npc_worgen_runt : public ScriptedAI
                 case EVENT_JUMP_TO_PRISON:
                     me->GetMotionMaster()->MoveJump(worgenRuntJumpPos[_worgenID], 16.0f, _worgenID < WORGEN_ID_CATHEDRAL_1 ? 19.2911f : frand(3.945607f, 4.852813f));
                     me->SetHomePosition(worgenRuntJumpPos[_worgenID]);
-                    _events.ScheduleEvent(EVENT_AGGRO_PLAYER, 2 * IN_MILLISECONDS);
+                    _events.ScheduleEvent(EVENT_AGGRO_PLAYER, 2s);
                     break;
                 case EVENT_AGGRO_PLAYER:
                     if (Unit* player = ObjectAccessor::GetPlayer(*me, _playerGuid))
@@ -837,7 +995,7 @@ struct npc_josiah_avery_worgen_form : public PassiveAI
         me->m_Events.AddLambdaEventAtOffset([this, summoner]()
         {
             me->SetFacingToObject(summoner);
-            _events.ScheduleEvent(EVENT_COSMETIC_ATTACK, 500);
+            _events.ScheduleEvent(EVENT_COSMETIC_ATTACK, 500ms);
         }, 200);
     }
 
@@ -875,12 +1033,12 @@ struct npc_josiah_avery_worgen_form : public PassiveAI
                             if (Creature* labTrigger = lorna->FindNearestCreature(NPC_GENERIC_TRIGGER_LAB, 5.0f, true))
                                 labTrigger->CastSpell(player, SPELL_PULL_TO);
 
-                        _events.ScheduleEvent(EVENT_JUMP_TO_PLAYER, 1 * IN_MILLISECONDS);
+                        _events.ScheduleEvent(EVENT_JUMP_TO_PLAYER, 1s);
                     }
                     break;
                 case EVENT_JUMP_TO_PLAYER:
                     me->GetMotionMaster()->MoveJump(josiahJumpPos, 10.0f, 14.18636f);
-                    _events.ScheduleEvent(EVENT_SHOOT_JOSIAH, 1 * IN_MILLISECONDS + 200);
+                    _events.ScheduleEvent(EVENT_SHOOT_JOSIAH, 1s + 200ms);
                     break;
                 case EVENT_SHOOT_JOSIAH:
                     if (Creature* lorna = me->FindNearestCreature(NPC_LORNA_CROWLEY, 30.0f, true))
@@ -921,6 +1079,1133 @@ class spell_gilneas_pull_to : public SpellScript
     }
 };
 
+class npc_lorna_crowley_basement : public CreatureScript
+{
+public:
+    npc_lorna_crowley_basement(const char *ScriptName) : CreatureScript(ScriptName) { }
+
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+    {
+        if (quest->GetQuestId() == QUEST_FROM_THE_SHADOWS)
+        {
+            if (player->getClass() == CLASS_HUNTER)
+                player->UnsummonPetTemporaryIfAny();
+
+            player->CastSpell(player, SPELL_SUMMON_MASTIFF, false);
+            creature->AI()->Talk(0);
+        }
+        return true;
+    }
+
+    bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 /*opt*/)
+    {
+        if (quest->GetQuestId() == QUEST_FROM_THE_SHADOWS)
+            if (Unit* charm = Unit::GetCreature(*creature, player->GetMinionGUID()))
+                if (charm->GetEntry() == NPC_GILNEAS_MASTIFF)
+                    if (Creature* mastiff = charm->ToCreature())
+                        mastiff->DespawnOrUnsummon();
+
+        if (player->getClass() == CLASS_HUNTER)
+            player->ResummonPetTemporaryUnSummonedIfAny();
+
+        return true;
+    }
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_lorna_crowley_basementAI (creature);
+    }
+
+    struct npc_lorna_crowley_basementAI : public ScriptedAI
+    {
+        npc_lorna_crowley_basementAI(Creature* creature) : ScriptedAI(creature)
+        {
+            me->SetReactState(REACT_PASSIVE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!UpdateVictim())
+                return;
+        }
+    };
+};
+
+struct npc_gilnean_mastiff : public ScriptedAI
+{
+    npc_gilnean_mastiff(Creature* creature) : ScriptedAI(creature) 
+    {
+        me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_ATTACK_LURKER, true);
+    }
+
+    void Reset() override
+    {
+        me->GetCharmInfo()->InitEmptyActionBar(false);
+        me->GetCharmInfo()->SetActionBar(0, SPELL_ATTACK_LURKER, ACT_PASSIVE);
+        me->SetReactState(REACT_DEFENSIVE);
+        me->GetCharmInfo()->SetIsFollowing(true);
+    }
+
+    void UpdateAI(uint32 /*diff*/) override
+    {
+        Player* player = me->GetOwner()->ToPlayer();
+
+        if (player->GetQuestStatus(QUEST_FROM_THE_SHADOWS) == QUEST_STATUS_REWARDED)
+            me->DespawnOrUnsummon(1);
+
+        if (!UpdateVictim())
+        {
+            me->GetCharmInfo()->SetIsFollowing(true);
+            me->SetReactState(REACT_DEFENSIVE);
+            return;
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        me->DespawnOrUnsummon(1);
+    }
+
+    void KilledUnit(Unit* /*victim*/) override
+    {
+        Reset();
+    }
+};
+
+struct npc_bloodfang_lurker : public ScriptedAI
+{
+    npc_bloodfang_lurker(Creature* creature) : ScriptedAI(creature) { }
+
+    bool _enrage;
+    bool _frenzy;
+
+    void Reset() override
+    {
+        _enrage = false;
+        _frenzy = false;
+        DoCastSelf(SPELL_SHADOWSTALKER_STEALTH);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->SetReactState(REACT_PASSIVE);
+    }
+
+    void StartAttack(Unit* who)
+    {
+        me->SetReactState(REACT_AGGRESSIVE);
+        me->SetInCombatWith(who);
+        who->SetInCombatWith(me);
+    }
+
+    void DamageTaken(Unit* attacker, uint32 &damage) override
+    {
+        if (me->HasReactState(REACT_PASSIVE))
+            StartAttack(attacker);
+    }
+
+    void SpellHit(Unit* caster, const SpellInfo* spell) override
+    {
+        if (spell->Id == SPELL_ATTACK_LURKER)
+            StartAttack(caster);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        if (!_frenzy && me->HealthBelowPct(45))
+        {
+            _frenzy = true;
+            DoCast(SPELL_UNDYING_FRENZY);
+        }
+
+        if (!_enrage && me->HealthBelowPct(30))
+        {
+            _enrage = true;
+            DoCast(SPELL_ENRAGE);
+            Talk(WORGEN_ENRAGE_EMOTE);
+        }
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+class spell_attack_lurker : public SpellScript
+{
+    PrepareSpellScript(spell_attack_lurker);
+
+    void HandleDummy()
+    {
+        Unit* caster = GetCaster();
+
+        if (Creature* target = caster->FindNearestCreature(NPC_BLOODFANG_LURKER, 30.0f))
+        {
+            float x,y,z,o;
+            target->GetContactPoint(caster, x, y, z, CONTACT_DISTANCE);
+            o = caster->GetOrientation();
+            float speedXY, speedZ;
+            speedZ = 10.0f;
+            speedXY = caster->GetExactDist2d(x, y) * 30.0f / speedZ;
+            caster->GetMotionMaster()->MoveCharge(x, y, z, speedXY, speedZ);
+            target->RemoveAura(SPELL_SHADOWSTALKER_STEALTH);
+            target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            target->SetReactState(REACT_AGGRESSIVE);
+            target->AI()->AttackStart(caster);
+        }
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_attack_lurker::HandleDummy);
+    }
+};
+
+class npc_king_genn_greymane : public CreatureScript
+{
+public:
+    npc_king_genn_greymane() : CreatureScript("npc_king_genn_greymane") { }
+
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+    {
+        if (quest->GetQuestId() == QUEST_SAVE_KRENNAN_ARANAS)
+        {
+            float x, y;
+            creature->GetNearPoint2D(x, y, 2.0f, player->GetOrientation() + M_PI / 2);
+
+            if (Creature* horse = player->SummonCreature(NPC_KING_GREYMANES_HORSE, x, y, creature->GetPositionZ(), creature->GetOrientation()))
+            {
+                if (npc_escortAI* escort = CAST_AI(npc_escortAI, horse->AI()))
+                {
+                    escort->AddWaypoint(1, -1799.37f, 1400.21f, 19.8951f);
+                    escort->AddWaypoint(2, -1798.23f, 1396.9f, 19.8993f);
+                    escort->AddWaypoint(3, -1795.03f, 1388.01f, 19.8898f);
+                    escort->AddWaypoint(4, -1790.16f, 1378.7f, 19.8016f);
+                    escort->AddWaypoint(5, -1786.41f, 1372.97f, 19.8406f);
+                    escort->AddWaypoint(6, -1779.72f, 1364.88f, 19.8131f);
+                    escort->AddWaypoint(7, -1774.43f, 1359.87f, 19.7021f);
+                    escort->AddWaypoint(8, -1769.0f, 1356.76f, 19.7439f);
+                    escort->AddWaypoint(9, -1762.64f, 1356.02f, 19.7979f);
+                    escort->AddWaypoint(10, -1758.91f, 1356.08f, 19.8635f);
+                    escort->AddWaypoint(11, -1751.95f, 1356.8f, 19.8273f);
+                    escort->AddWaypoint(12, -1745.66f, 1357.21f, 19.7993f);
+                    escort->AddWaypoint(13, -1738.7f, 1356.64f, 19.7822f);
+                    escort->AddWaypoint(14, -1731.79f, 1355.51f, 19.7149f);
+                    escort->AddWaypoint(15, -1724.89f, 1354.29f, 19.8661f);
+                    escort->AddWaypoint(16, -1718.03f, 1352.93f, 19.7824f);
+                    escort->AddWaypoint(17, -1707.68f, 1351.16f, 19.7811f, 0, true); // Jump
+                    escort->AddWaypoint(18, -1673.04f, 1344.91f, 15.1353f, 2000);
+                    escort->AddWaypoint(19, -1673.04f, 1344.91f, 15.1353f);
+                    escort->AddWaypoint(20, -1669.32f, 1346.55f, 15.1353f);
+                    escort->AddWaypoint(21, -1666.45f, 1349.89f, 15.1353f);
+                    escort->AddWaypoint(22, -1665.61f, 1353.85f, 15.1353f);
+                    escort->AddWaypoint(23, -1666.04f, 1358.01f, 15.1353f);
+                    escort->AddWaypoint(24, -1669.79f, 1360.71f, 15.1353f);
+                    escort->AddWaypoint(25, -1673.1f, 1362.11f, 15.1353f);
+                    escort->AddWaypoint(26, -1677.12f, 1361.57f, 15.1353f);
+                    escort->AddWaypoint(27, -1679.9f, 1360.1f, 15.1353f);
+                    escort->AddWaypoint(28, -1682.79f, 1357.56f, 15.1353f);
+                    escort->AddWaypoint(29, -1682.79f, 1357.56f, 15.1353f);
+                    escort->AddWaypoint(30, -1689.07f, 1352.39f, 15.1353f);
+                    escort->AddWaypoint(31, -1691.91f, 1351.83f, 15.1353f);
+                    escort->AddWaypoint(32, -1703.81f, 1351.82f, 19.7604f);
+                    escort->AddWaypoint(33, -1707.26f, 1352.38f, 19.7826f);
+                    escort->AddWaypoint(34, -1712.25f, 1353.55f, 19.7826f);
+                    escort->AddWaypoint(35, -1718.2f, 1356.51f, 19.7164f);
+                    escort->AddWaypoint(36, -1741.5f, 1372.04f, 19.9569f);
+                    escort->AddWaypoint(37, -1746.23f, 1375.8f, 19.9817f);
+                    escort->AddWaypoint(38, -1751.06f, 1380.53f, 19.8424f);
+                    escort->AddWaypoint(39, -1754.97f, 1386.34f, 19.8474f);
+                    escort->AddWaypoint(40, -1760.77f, 1394.37f, 19.9282f);
+                    escort->AddWaypoint(41, -1765.11f, 1402.07f, 19.8816f);
+                    escort->AddWaypoint(42, -1768.24f, 1410.2f, 19.7833f);
+                    escort->AddWaypoint(43, -1772.26f, 1420.48f, 19.9029f);
+                    escort->AddWaypoint(44, -1776.98f, 1436.13f, 19.632f);
+                    player->EnterVehicle(horse, 0);
+                }
+            }
+        }
+
+        return true;
+    }
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_king_genn_greymaneAI (creature);
+    }
+
+    struct npc_king_genn_greymaneAI : public ScriptedAI
+    {
+        npc_king_genn_greymaneAI(Creature* creature) : ScriptedAI(creature)
+        {
+            _scheduler.CancelAll();
+
+            _scheduler.Schedule(randtime(15s, 35s), [this](TaskContext context)
+            {
+                Talk(0);
+                context.Repeat(randtime(15s, 35s));
+            });
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            _scheduler.Update(diff);
+        }
+
+    private:
+        TaskScheduler _scheduler;
+    };
+};
+
+class npc_vehicle_genn_horse : public CreatureScript
+{
+public:
+    npc_vehicle_genn_horse() : CreatureScript("npc_vehicle_genn_horse") { }
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_vehicle_genn_horseAI (creature);
+    }
+
+    struct npc_vehicle_genn_horseAI : public npc_escortAI
+    {
+        npc_vehicle_genn_horseAI(Creature* creature) : npc_escortAI(creature)
+        {
+            _aranasSaved = false;
+            _playerSeated = false;
+        }
+
+        bool _playerSeated;
+        bool _aranasSaved;
+
+        void AttackStart(Unit* /*who*/) override { }
+        void EnterCombat(Unit* /*who*/) override { }
+        void EnterEvadeMode() override { }
+
+        void Reset() override
+        {
+            _playerSeated = false;
+        }
+
+        void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply)
+        {
+            if (who->GetTypeId() == TYPEID_PLAYER)
+            {
+                _playerSeated = true;
+
+                if (apply)
+                {
+                    Start(false, true, who->GetGUID());
+                    me->SetSpeed(MOVE_WALK, 1.0f, true);
+                    me->SetSpeed(MOVE_RUN, 1.3f, true);
+                }
+            }
+            else 
+            {
+                if (apply)
+                {
+                    SetEscortPaused(false);
+                    _aranasSaved = true;
+                    me->SetSpeed(MOVE_WALK, 1.0f, true);
+                    me->SetSpeed(MOVE_RUN, 1.3f, true);
+                }
+                else
+                    me->DespawnOrUnsummon(1);
+            }
+        }
+
+        void WaypointReached(uint32 i)
+        {
+            Player* player = GetPlayerForEscort();
+
+            switch(i)
+            {
+                case 1:
+                {
+                    if (Unit* passenger = me->GetVehicleKit()->GetPassenger(0))
+                    {
+                        if (Vehicle* vehicle = me->GetVehicleKit())
+                            if (Unit* passenger = vehicle->GetPassenger(0))
+                                if (Player* player = passenger->ToPlayer())
+                                    player->SetClientControl(me, 0);
+                    }
+                    break;
+                }
+                case 17:
+                {
+                    if (Unit* passenger = me->GetVehicleKit()->GetPassenger(0))
+                    {
+                        if (Creature* aranas = passenger->FindNearestCreature(NPC_KRENNAN_ARANAS, 50.0f))
+                            if (Vehicle* vehicle = me->GetVehicleKit())
+                                if (Unit* passenger = vehicle->GetPassenger(0))
+                                    if (Player* player = passenger->ToPlayer())
+                                        aranas->AI()->Talk(TEXT_KRENNAN_ARANAS);
+
+                        me->GetMotionMaster()->MoveJump(-1673.04f, 1344.91f, 15.1353f, 25.0f, 15.0f);
+
+                        me->m_Events.AddLambdaEventAtOffset([this, passenger]()
+                        {
+                            Talk(EMOTE_SAVE_KRENNAN_ARANAS, passenger);
+                        }, 2000);
+                    }
+                    break;
+                }
+                case 40:
+                {
+                    if (Vehicle* vehicle = me->GetVehicleKit())
+                    {
+                        if (Unit* passenger = vehicle->GetPassenger(0))
+                        {
+                            if (Player* player = passenger->ToPlayer())
+                            {
+                                std::list<Creature*> guards;
+                                me->GetCreatureListWithEntryInGrid(guards, NPC_GILNEAS_CITY_GUARD, 90.0f);
+
+                                if (!guards.empty())
+                                    for (std::list<Creature*>::const_iterator itr = guards.begin(); itr != guards.end(); ++itr)
+                                        if ((*itr)->IsAlive())
+                                            if (Creature* worgen = (*itr)->FindNearestCreature(NPC_BLOODFANG_RIPPER, 90.0f))
+                                                (*itr)->CastSpell(worgen, SPELL_GUARD_SHOOT, false);
+                            }
+                        }
+                    }
+                    break;
+                }
+                case 41:
+                {
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    me->CombatStop();
+                    break;
+                }
+                case 42:
+                {
+                    if (Vehicle* vehicle = me->GetVehicleKit())
+                        if (Unit* passenger = vehicle->GetPassenger(0))
+                            if (Player* player = passenger->ToPlayer())
+                            {
+                                player->KilledMonsterCredit(NPC_KRENNAN_ARANAS_KILL_CREDIT, 0);
+
+                                if (Unit* passenger_2 = vehicle->GetPassenger(1))
+                                    if (Creature* aranas = passenger_2->ToCreature())
+                                        aranas->AI()->Talk(TEXT_SAVED_KRENNAN_ARANAS);
+                            }
+                    break;
+                }
+                case 44:
+                {
+                    if (Unit* passenger = me->GetVehicleKit()->GetPassenger(0))
+                    {
+                        if (Vehicle* vehicle = me->GetVehicleKit())
+                        {
+                            if (Unit* passenger = vehicle->GetPassenger(0))
+                                if (Player* player = passenger->ToPlayer())
+                                    player->SetClientControl(me, 1);
+
+                            if (Unit* passenger = vehicle->GetPassenger(1))
+                                if (Creature* aranas = passenger->ToCreature())
+                                    aranas->DespawnOrUnsummon();
+
+                            vehicle->RemoveAllPassengers();
+                        }
+                    }
+                    me->DespawnOrUnsummon(1);
+                    break;
+                }
+            }
+        }
+
+        void OnCharmed(bool /*apply*/) { }
+
+        void UpdateAI(uint32 diff) override
+        {
+            npc_escortAI::UpdateAI(diff);
+            Player* player = GetPlayerForEscort();
+
+            if (_playerSeated)
+            {
+                player->SetClientControl(me, 0);
+                _playerSeated = false;
+            }
+        }
+    };
+};
+
+struct npc_saved_aranas : public ScriptedAI
+{
+    npc_saved_aranas(Creature* creature) : ScriptedAI(creature)
+    {
+        me->SetReactState(REACT_PASSIVE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+
+        if (me->IsSummon())
+        {
+            if (Creature* horse = me->FindNearestCreature(NPC_KING_GREYMANES_HORSE, 20.0f))
+                DoCast(horse, 84275, true);
+
+            if (Creature* aranas = me->FindNearestCreature(NPC_KRENNAN_ARANAS, 50.0f))
+                aranas->DespawnOrUnsummon();
+        }
+    }
+};
+
+class npc_gilneas_children : public CreatureScript
+{
+    public:
+        npc_gilneas_children(const char* scriptName, uint32 spellId, uint8 playerSayId) : CreatureScript(scriptName), _spellId(spellId), _playerSayId(playerSayId) { }
+
+    private:
+        uint32 _spellId;
+        uint8 _playerSayId;
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new creature_script(creature, _spellId, _playerSayId);
+        }
+
+        struct creature_script : public ScriptedAI
+        {
+            creature_script(Creature* creature, uint32 spellId, uint8 playerSayId) : ScriptedAI(creature), _spellId(spellId), _playerSayId(playerSayId) { }
+
+            EventMap events;
+            ObjectGuid playerGUID;
+            uint32 _spellId;
+            uint8 _playerSayId;
+            bool activated;
+
+            void Reset() override
+            {
+                events.Reset();
+                playerGUID = 0;
+                activated = false;
+                me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+
+                if (me->GetEntry() == NPC_CYNTHIA)
+                    events.ScheduleEvent(EVENT_CRY, 1s);
+            }
+
+            void SpellHit(Unit* caster, const SpellInfo* spell)
+            {
+                if (!activated && spell->Id == _spellId)
+                {
+                    if (Player* player = caster->ToPlayer())
+                    {
+                        activated = true;
+                        playerGUID = player->GetGUID();
+                        player->Say(PlayerText[_playerSayId], LANG_UNIVERSAL);
+                        player->KilledMonsterCredit(me->GetEntry(), 0);
+                        me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                        events.ScheduleEvent(EVENT_TALK_TO_PLAYER, 3s + 500ms);
+                    }
+                }
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                events.Update(diff);
+
+                if (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_TALK_TO_PLAYER:
+                        {
+                            events.CancelEvent(EVENT_CRY);
+
+                            if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
+                                Talk(CHILDREN_TEXT_ID, player);
+
+                            events.ScheduleEvent(EVENT_START_RUN, 5s);
+                        }
+                        break;
+                        case EVENT_START_RUN:
+                        {
+                            switch (me->GetEntry())
+                            {
+                                case NPC_JAMES:
+                                    me->GetMotionMaster()->MoveSplinePath(JamesPath[0], JamesPathLenght, false, false, 0.f, false, false);
+                                    break;
+                                case NPC_CYNTHIA:
+                                    me->GetMotionMaster()->MoveSplinePath(CynthiaPath[0], CynthiaPathLenght, false, false, 0.f, false, false);
+                                    break;
+                                case NPC_ASHLEY:
+                                    me->GetMotionMaster()->MoveSplinePath(AshleyPath[0], AshleyPathLenght, false, false, 0.f, false, false);
+                                    break;
+                                default:
+                                    return;
+                            }
+
+                            events.ScheduleEvent(EVENT_OPEN_DOOR, me->GetSplineDuration());
+                        }
+                        break;
+                        case EVENT_OPEN_DOOR:
+                        {
+                            if (GameObject* door = me->FindNearestGameObject(GO_DOOR_TO_THE_BASEMENT, 10.0f))
+                            {
+                                if (door->GetGoState() == GO_STATE_READY)
+                                {
+                                    door->UseDoorOrButton();
+                                    events.ScheduleEvent(EVENT_RESUME_RUN, 2s);
+                                }
+                                else
+                                    events.ScheduleEvent(EVENT_RESUME_RUN, 0ms);
+                            }
+                        }
+                        break;
+                        case EVENT_RESUME_RUN:
+                            me->GetMotionMaster()->MoveSplinePath(childrenBasementPath[0], childrenBasementPathLenght, false, false, 0.f, false, false);
+                            me->DespawnOrUnsummon(me->GetSplineDuration());
+                            break;
+                        case EVENT_CRY:
+                            me->HandleEmoteCommand(EMOTE_ONESHOT_CRY);
+                            events.ScheduleEvent(EVENT_CRY, randtime(1s, 1s + 500ms));
+                            break;
+                    }
+                }
+            }
+        };
+};
+
+class npc_wahl : public CreatureScript
+{
+public:
+    npc_wahl(const char *ScriptName) : CreatureScript(ScriptName) { }
+
+    struct npc_wahlAI : public npc_escortAI
+    {
+        npc_wahlAI(Creature* creature) : npc_escortAI(creature)
+        {
+            creature->SetReactState(REACT_PASSIVE);
+            creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC || UNIT_FLAG_IMMUNE_TO_NPC);
+        }
+
+        void DoAction(int32 const action) override
+        {
+            if (action == ACTION_CONTINUE_SCENE)
+            {
+                me->m_Events.AddLambdaEventAtOffset([this]()
+                {
+                    SetEscortPaused(false);
+                }, 4000);
+            }
+        }
+
+        void WaypointReached(uint32 point)
+        {
+            if (point == 1)
+                if (me->IsSummon())
+                    if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                    {
+                        SetEscortPaused(true);
+                        me->SetDisplayId(NPC_WAHL_WORGEN);
+                        Talk(YELL_DONT_MESS);
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC || UNIT_FLAG_IMMUNE_TO_NPC);
+
+                        me->m_Events.AddLambdaEventAtOffset([this, summoner]()
+                        {
+                            AttackStart(summoner);
+                        }, 800);
+                    }
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            npc_escortAI::UpdateAI(diff);
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_wahlAI(creature);
+    }
+};
+
+class npc_lucius_the_cruel : public CreatureScript
+{
+public:
+    npc_lucius_the_cruel(const char *ScriptName) : CreatureScript(ScriptName) { }
+
+    struct npc_lucius_the_cruelAI : public ScriptedAI
+    {
+        npc_lucius_the_cruelAI(Creature* creature) : ScriptedAI(creature)
+        {
+            SetCombatMovement(false);
+            Catch = false;
+            Summon = false;
+            uiCatchTimer = 1000;
+            uiShootTimer = 500;
+            uiPlayerGUID = 0;
+            uiSummonTimer = 1500;
+            me->SetReactState(REACT_PASSIVE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC || UNIT_FLAG_IMMUNE_TO_NPC);
+        }
+
+        ObjectGuid uiPlayerGUID;
+        uint32 uiCatchTimer;
+        uint32 uiShootTimer;
+        uint32 uiSummonTimer;
+        bool Catch;
+        bool Summon;
+
+        void EnterEvadeMode() override
+        {
+            me->DespawnOrUnsummon();
+        }
+
+        void JustDied(Unit* /*killer*/) override
+        {
+            if (Creature* wahl = me->FindNearestCreature(NPC_WAHL, 30.f))
+                wahl->AI()->DoAction(ACTION_CONTINUE_SCENE);
+        }
+
+        void MovementInform(uint32 type, uint32 id) override
+        {
+            if (type != POINT_MOTION_TYPE)
+                return;
+
+            if (id == POINT_CATCH_CHANCE)
+            {
+                me->HandleEmoteCommand(EMOTE_ONESHOT_KNEEL);
+
+                if (me->IsSummon())
+                    if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                        if (Creature* chance = summoner->ToCreature())
+                        {
+                            me->m_Events.AddLambdaEventAtOffset([this, chance]()
+                            {
+                                Catch = true;
+                                Summon = true;
+                                chance->AI()->DoAction(ACTION_CHANCE_DESPAWN);
+                            }, 4000);
+                        }
+            }
+        }
+
+        void DoAction(int32 const action) override
+        {
+            if (action == ACTION_SUMMON_LUCIUS)
+            {
+                me->GetMotionMaster()->MovePoint(POINT_CATCH_CHANCE, -2106.372f, 2331.106f, 7.360674f);
+
+                me->m_Events.AddLambdaEventAtOffset([this]()
+                {
+                    Talk(SAY_THIS_CAT_IS_MINE);
+                }, 1000);
+            }
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (Catch)
+            {
+                if (uiCatchTimer <= diff)
+                {
+                    Catch = false;
+                    uiCatchTimer = 1000;
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC || UNIT_FLAG_IMMUNE_TO_NPC);
+                    me->SetReactState(REACT_AGGRESSIVE);
+
+                    if (Player* player = Unit::GetPlayer(*me, uiPlayerGUID))
+                        AttackStart(player);
+                }
+                else
+                    uiCatchTimer -= diff;
+            }
+
+            if (Summon)
+            {
+                if (uiSummonTimer <= diff)
+                {
+                    Summon = false;
+                    uiSummonTimer = 1500;
+
+                    if (Creature* wahl = me->SummonCreature(NPC_WAHL, -2098.366f, 2352.075f, 7.160643f))
+                    {
+                        if (npc_escortAI* npc_escort = CAST_AI(npc_wahl::npc_wahlAI, wahl->AI()))
+                        {
+                            npc_escort->AddWaypoint(0, -2106.54f, 2342.69f, 6.93668f);
+                            npc_escort->AddWaypoint(1, -2106.12f, 2334.90f, 7.36691f);
+                            npc_escort->AddWaypoint(2, -2117.80f, 2357.15f, 5.88139f);
+                            npc_escort->AddWaypoint(3, -2111.46f, 2366.22f, 7.17151f);
+                            npc_escort->Start(false, true);
+                        }
+                    }
+                }
+                else
+                    uiSummonTimer -= diff;
+            }
+
+            if (!UpdateVictim())
+                return;
+
+            if (uiShootTimer <= diff)
+            {
+                uiShootTimer = 1000;
+
+                if (me->GetDistance(me->GetVictim()) > 2.0f)
+                    DoCastVictim(SPELL_LUCIUS_SHOOT);
+            }
+            else
+                uiShootTimer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_lucius_the_cruelAI(creature);
+    }
+};
+
+struct npc_chance_the_cat : public ScriptedAI
+{
+    npc_chance_the_cat(Creature* creature) : ScriptedAI(creature)
+    {
+        Despawn = false;
+        uiDespawnTimer = 500;
+    }
+
+    uint32 uiDespawnTimer;
+    bool Despawn;
+
+    void DoAction(int32 const action) override
+    {
+        if (action == ACTION_CHANCE_DESPAWN)
+            Despawn = true;
+    }
+
+    void SpellHit(Unit* caster, const SpellInfo* spell) override
+    {
+        if (spell->Id == SPELL_CATCH_CAT && caster->GetTypeId() == TYPEID_PLAYER)
+        {
+            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+
+            if (Creature* lucius = me->SummonCreature(NPC_LUCIUS_THE_CRUEL, -2111.533f, 2329.95f, 7.390349f))
+            {
+                lucius->AI()->DoAction(ACTION_SUMMON_LUCIUS);
+                CAST_AI(npc_lucius_the_cruel::npc_lucius_the_cruelAI, lucius->AI())->uiPlayerGUID = caster->GetGUID();
+            }
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (Despawn)
+        {
+            if (uiDespawnTimer <= diff)
+            {
+                uiDespawnTimer = 500;
+                Despawn = false;
+                me->DespawnOrUnsummon();
+            }
+            else
+                uiDespawnTimer -= diff;
+        }
+    }
+};
+
+class npc_mountain_horse : public CreatureScript
+{
+public:
+    npc_mountain_horse(const char *ScriptName) : CreatureScript(ScriptName) { }
+
+    bool OnGossipHello(Player* player, Creature* creature)
+    {
+        if (player->GetQuestStatus(QUEST_THE_HUNGRY_ETTIN) == QUEST_STATUS_INCOMPLETE)
+        {
+            player->EnterVehicle(creature, 0);
+            creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            creature->GetMotionMaster()->Clear();
+            return true;
+        }
+        return true;
+    }
+
+    struct npc_mountain_horseAI : public ScriptedAI
+    {
+        npc_mountain_horseAI(Creature* creature) : ScriptedAI(creature) { }
+
+        EventMap events;
+
+        void Reset() override
+        {
+            if (!me->GetVehicleKit()->GetPassenger(0))
+                me->GetMotionMaster()->MoveRandom(8.0f);
+        }
+
+        void SpellHit(Unit* caster, SpellInfo const* spell)
+        {
+            switch (spell->Id)
+            {
+                case SPELL_ROUND_UP_HORSE:
+                {
+                    if (me->GetVehicleKit()->GetPassenger(0))
+                        break;
+
+                    me->DespawnOrUnsummon(1);
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+
+        void PassengerBoarded(Unit* /*passenger*/, int8 /*SeatId*/, bool apply)
+        {
+            if (!apply)
+            {
+                me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->SetWalk(true);
+                me->AI()->EnterEvadeMode();
+            }
+        }
+
+        void OnCharmed(bool apply) { }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_mountain_horseAI (creature);
+    }
+};
+
+struct npc_mountain_horse_summoned : public ScriptedAI
+{
+    npc_mountain_horse_summoned(Creature* creature) : ScriptedAI(creature) { }
+
+    EventMap events;
+
+    void IsSummonedBy(Unit* summoner) override
+    {
+        me->GetMotionMaster()->MoveFollow(summoner, 6.0f, 0);
+        me->CastSpell(summoner, SPELL_ROPE_CHANNEL, true);
+        me->ClearUnitState(UNIT_STATE_CASTING);
+        events.ScheduleEvent(EVENT_CHECK_LORNA, 2s);
+        events.ScheduleEvent(EVENT_CHECK_OWNER, 2s);
+        me->SetWalk(false);
+        me->SetSpeed(MOVE_RUN, 2.0f, true);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        events.Update(diff);
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_CHECK_LORNA:
+                {
+                    if (Creature* lornaCrowley = me->FindNearestCreature(NPC_LORNA_CROWLEY_2, 8.0f, true))
+                    {
+                        if (Unit* owner = me->GetCharmerOrOwner())
+                        {
+                            if (owner->GetTypeId() == TYPEID_PLAYER)
+                                owner->ToPlayer()->KilledMonsterCredit(QUEST_CREDIT_HORSE);
+                        }
+                        events.CancelEvent(EVENT_CHECK_LORNA);
+                        me->DespawnOrUnsummon(1);
+                    }
+                    else
+                        events.RescheduleEvent(EVENT_CHECK_LORNA, 2s);
+                    break;
+                }
+                case EVENT_CHECK_OWNER:
+                {
+                    if (Unit* owner = me->GetCharmerOrOwner())
+                    {
+                        if (!owner->IsAlive() || !owner->IsInWorld() || !owner->GetVehicleBase())
+                            me->DespawnOrUnsummon(1);
+
+                        events.CancelEvent(EVENT_CHECK_OWNER);
+                    }
+                    else
+                        events.RescheduleEvent(EVENT_CHECK_OWNER, 2s);
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+};
+
+class spell_gilneas_test_telescope : public SpellScript
+{
+    PrepareSpellScript(spell_gilneas_test_telescope);
+
+    void StartCinematic()
+    {
+        if (Unit* caster = GetCaster())
+        {
+            if (caster->GetTypeId() == TYPEID_PLAYER)
+            {
+                caster->PlayDirectSound(MUSIC_ENTRY_TELESCOPE, caster->ToPlayer());
+                caster->ToPlayer()->SendCinematicStart(PLAY_CINEMATIC_TELESCOPE);
+            }
+        }
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_gilneas_test_telescope::StartCinematic);
+    }
+};
+
+class npc_stagecoach_carriage_exodus : public CreatureScript
+{
+public:
+    npc_stagecoach_carriage_exodus(const char *ScriptName) : CreatureScript(ScriptName) { }
+
+    bool OnGossipHello(Player* player, Creature* creature)
+    {
+        if (player->GetQuestStatus(QUEST_ENTRY_EXODUS) == QUEST_STATUS_COMPLETE)
+        {
+            if (player->GetVehicleBase())
+                return true;
+
+            if (Creature* harness = player->FindNearestCreature(NPC_STAGECOACH_HARNESS, 30.0f, true))
+                player->SummonCreature(NPC_HARNESS_SUMMONED, harness->GetPositionX(), harness->GetPositionY(), harness->GetPositionZ(), harness->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 600000, const_cast<SummonPropertiesEntry*>(sSummonPropertiesStore.LookupEntry(3105)));
+            return true;
+        }
+
+        return true;
+    }
+
+    struct npc_stagecoach_carriage_exodusAI : public ScriptedAI
+    {
+        npc_stagecoach_carriage_exodusAI(Creature* creature) : ScriptedAI(creature)
+        {
+            events.ScheduleEvent(EVENT_BOARD_HARNESS_OWNER, 1ms);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
+        }
+
+        EventMap events;
+
+        void UpdateAI(uint32 diff)
+        {
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_BOARD_HARNESS_OWNER:
+                    {
+                        if (Unit* harness = me->GetVehicleCreatureBase())
+                        {
+                            if (Unit* harnessOwner = harness->ToTempSummon()->GetSummoner())
+                            {
+                                if (harnessOwner->IsAlive() && harnessOwner->IsInWorld())
+                                {
+                                    harnessOwner->EnterVehicle(me, 1);
+                                    events.CancelEvent(EVENT_BOARD_HARNESS_OWNER);
+                                    break;
+                                }
+                            }
+                        }
+                        events.CancelEvent(EVENT_BOARD_HARNESS_OWNER);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_stagecoach_carriage_exodusAI(creature);
+    }
+};
+
+class npc_stagecoach_harness : public CreatureScript
+{
+public:
+    npc_stagecoach_harness(const char *ScriptName) : CreatureScript(ScriptName) { }
+
+    struct npc_stagecoach_harnessAI : public npc_escortAI
+    {
+        npc_stagecoach_harnessAI(Creature* creature) : npc_escortAI(creature) { }
+
+        void OnCharmed(bool apply) { }
+
+        void IsSummonedBy(Unit* owner)
+        {
+            DoAction(ACTION_START_WP);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
+        }
+
+        void DoAction(int32 action)
+        {
+            switch (action)
+            {
+                case ACTION_START_WP:
+                {
+                    Start(false, true, NULL, NULL, false, false, true);
+                    SetDespawnAtEnd(true);
+
+                    if (GameObject* gate = me->FindNearestGameObject(GO_FIRST_GATE, 80.0f))
+                        gate->UseDoorOrButton(0, false, me);
+
+                    me->SetWalk(false);
+                    me->SetSpeed(MOVE_RUN, 1.34f, true);
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+
+        void WaypointReached(uint32 point) override
+        {
+            switch (point)
+            {
+                case 16:
+                {
+                    if (GameObject* gate = me->FindNearestGameObject(GO_KINGS_GATE, 80.0f))
+                        gate->UseDoorOrButton(0, false, me);
+                    break;
+                }
+                case 24:
+                {
+                    if (Unit* caravan = me->GetVehicleKit()->GetPassenger(2))
+                    {
+                        if (Unit* lorna = caravan->GetVehicleKit()->GetPassenger(6))
+                        {
+                            if (lorna->ToCreature())
+                                lorna->ToCreature()->AI()->Talk(0);
+                        }
+                    }
+                    break;
+                }
+                case 30:
+                {
+                    if (Unit* caravan = me->GetVehicleKit()->GetPassenger(2))
+                    {
+                        if (Unit* player = caravan->GetVehicleKit()->GetPassenger(1))
+                            player->ExitVehicle();
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_stagecoach_harnessAI(creature);
+    }
+};
 
 void AddSC_gilneas()
 {
@@ -932,4 +2217,22 @@ void AddSC_gilneas()
     new creature_script<npc_josiah_avery>("npc_josiah_avery");
     new creature_script<npc_josiah_avery_worgen_form>("npc_josiah_avery_worgen_form");
     new spell_script<spell_gilneas_pull_to>("spell_gilneas_pull_to");
+    new npc_lorna_crowley_basement("npc_lorna_crowley_basement");
+    new creature_script<npc_gilnean_mastiff>("npc_gilnean_mastiff");
+    new creature_script<npc_bloodfang_lurker>("npc_bloodfang_lurker");
+    new spell_script<spell_attack_lurker>("spell_attack_lurker");
+    new npc_king_genn_greymane();
+    new npc_vehicle_genn_horse();
+    new creature_script<npc_saved_aranas>("npc_saved_aranas");
+    new npc_gilneas_children("npc_james", SPELL_SAVE_JAMES, PLAYER_SAY_JAMES);
+    new npc_gilneas_children("npc_ashley", SPELL_SAVE_ASHLEY, PLAYER_SAY_ASHLEY);
+    new npc_gilneas_children("npc_cynthia", SPELL_SAVE_CYNTHIA, PLAYER_SAY_CYNTHIA);
+    new npc_wahl("npc_wahl");
+    new npc_lucius_the_cruel("npc_lucius_the_cruel");
+    new creature_script<npc_chance_the_cat>("npc_chance_the_cat");
+    new npc_mountain_horse("npc_mountain_horse");
+    new creature_script<npc_mountain_horse_summoned>("npc_mountain_horse_summoned");
+    new spell_script<spell_gilneas_test_telescope>("spell_gilneas_test_telescope");
+    new npc_stagecoach_carriage_exodus("npc_stagecoach_carriage_exodus");
+    new npc_stagecoach_harness("npc_stagecoach_harness");
 }

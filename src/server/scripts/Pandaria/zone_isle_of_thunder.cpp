@@ -4315,10 +4315,12 @@ class spell_nalak_throw_spear : public SpellScript
     PrepareSpellScript(spell_nalak_throw_spear);
     SpellCastResult CheckCast()
     {
-		if (Unit* caster = GetCaster())
-			if (Creature* nalak = caster->FindNearestCreature(BOSS_NALAK, 50.0f, true))
-				if (nalak->IsAlive())
-					return SPELL_CAST_OK;
+        if (Unit* caster = GetCaster())
+            if (Creature* nalak = caster->FindNearestCreature(BOSS_NALAK, 50.0f, true))
+                if (nalak->IsAlive())
+                    return SPELL_CAST_OK;
+
+        return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
     }
 
     void Register() override
